@@ -12,3 +12,6 @@ https://github.com/erkkah/tigr
 using Pocketlang's plugin feature. 
 this was developed before I realized there was a raylib implementation. 
 
+only tested on windows machines with GCC & TCC.
+
+
