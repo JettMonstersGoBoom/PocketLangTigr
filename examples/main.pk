@@ -1,0 +1,152 @@
+
+## Import the native extension module.
+## from either mylib.so, or mylib.dll
+import Tigr
+import lang
+import math
+
+ObjectList = []
+
+class Object
+  def _init(x,y,r)
+    self.rad = r
+		self.x = x 
+		self.y = y
+		self.vx = (1-math.rand()%2)*0.1 
+		self.vy = math.rand()%32
+    self.name = "Object"
+		list_append(ObjectList, self)
+    print("Object init")
+  end
+	def _str()
+    return "<${self.x}, ${self.y}, ${self.rad}>"
+	end
+	def draw()
+		Tigr.Circle(screen,self.x,self.y,self.rad,Tigr.RGBA(255,255,0,255))
+	end
+	def update(t)
+		self.x=self.x+(self.vx*t)
+		self.y=self.y+(self.vy*t)
+		if (self.y>200-self.rad)
+			self.vy=-self.vy
+		end
+		self.vy+=32*t
+	end
+end
+
+class Hero is Object 
+  def _init(x,y,r)
+    super(x,y,r)
+    print("Hero init")
+  end
+	def update(t)
+		super(t)
+	end  
+end
+
+#Hero(64,64,4)
+
+for i in 0..10 do 
+	Object(math.rand()%320,math.rand()%100,2+math.rand()%16)
+end
+
+
+print(Tigr.TK_ALT)
+print(Tigr.TK_CONTROL)
+
+white = Tigr.RGBA(255,255,255,255)
+screen = Tigr.Window(480,270,"Hello",Tigr.TIGR_FIXED)
+
+print(screen)
+print(white)
+
+dest = Tigr.Bitmap(256,256)
+load = Tigr.LoadImage("examples/squinkle.png")
+
+print(screen.width)
+print(screen.height)
+
+print(dest.width)
+print(dest.height)
+
+if load
+	print(load.width)
+	print(load.height)
+end
+
+red = 16.5
+
+px = Tigr.Get(screen,16,16)
+
+mouse = Tigr.TMouse()
+
+print(mouse.x)
+print(mouse.y)
+print(mouse.buttons)
+print(mouse.left)
+print(mouse.middle)
+print(mouse.right)
+
+while (!Tigr.Closed(screen) and !Tigr.KeyDown(screen,Tigr.TK_ESCAPE))
+
+	lastTime = Tigr.Time()
+	Tigr.Clear(screen,red,32,32)
+	Tigr.BlitAlpha(screen,load,red,red,0,0,load.width,load.height,1.0)
+
+	Tigr.Blit(screen,load,32,32,0,0,load.width,load.height)
+	Tigr.BlitTint(screen,load,64,32,0,0,load.width,load.height,255,128,128,255)
+	Tigr.BlitTint(screen,load,96,32,0,0,load.width,load.height,white)
+
+	Tigr.Plot(screen,(red*3.0),(red*3.9),255,0,255,255)
+	Tigr.Plot(screen,32,32,white)
+	px = Tigr.Get(screen,16,16)
+	Tigr.Plot(screen,128,16,px)
+	Tigr.Plot(screen,127,16,white)
+	Tigr.Line(screen,0,0,100,120,white)
+	Tigr.Line(screen,0,0,100,140,255,0,255,255)
+	Tigr.Rect(screen,32,32,64,96,white)
+	Tigr.Rect(screen,4,4,100,140,255,0,255,255)
+	Tigr.Circle(screen,160,160,32,white)
+	if mouse.left 
+		Tigr.FillCircle(screen,mouse.x,mouse.y,red,255,0,0,128)
+	end
+	if mouse.right 
+		Tigr.FillCircle(screen,mouse.x,mouse.y,red,000,0,255,128)
+	end
+	if mouse.middle 
+		Tigr.FillCircle(screen,mouse.x,mouse.y,red,000,255,255,128)
+	end
+	Tigr.Print(screen,null,0,0,Tigr.RGBA(255,255,0,255),'Red ${red}')
+
+	if Tigr.KeyHeld(screen,Tigr.TK_RIGHT)
+		red=red+lastTime*60.0
+		if (red>200) 
+			red =0
+		end
+	end 
+
+	if Tigr.KeyHeld(screen,Tigr.TK_LEFT)
+		red=red-lastTime*60.0
+		if (red<00) 
+			red =200
+		end
+	end 
+
+
+	##print("Object List ${ObjectList.length}")
+
+	for i in 0..ObjectList.length do
+		ObjectList[i].update(lastTime)
+		ObjectList[i].draw()
+	end
+
+
+	gcbytes = lang.gc()
+	Tigr.Print(screen,null,0,8,Tigr.RGBA(255,0,255,255),'gc ${gcbytes}')
+	Tigr.Print(screen,null,0,16,Tigr.RGBA(255,128,255,255),'time ${lastTime}')
+	Tigr.Update(screen)
+end 
+Tigr.SaveImage(screen,"screen.png")
+
+print(lang.modules())
+print("exit")

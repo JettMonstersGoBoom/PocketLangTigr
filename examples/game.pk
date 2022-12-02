@@ -1,0 +1,77 @@
+
+## Import the native extension module.
+## from either mylib.so, or mylib.dll
+import Tigr
+import lang
+import math
+
+ObjectList = []
+
+class Object
+  def _init(x,y,r)
+    self.rad = r
+		self.x = x 
+		self.y = y
+		self.vx = (1-math.rand()%2)*0.1 
+		self.vy = math.rand()%32
+    self.name = "Object"
+		list_append(ObjectList, self)
+    print("Object init")
+  end
+	def _str()
+    return "<${self.x}, ${self.y}, ${self.rad}, ${self.vx}, ${self.vy}>"
+	end
+	def draw()
+		Tigr.Circle(screen,self.x,self.y,self.rad,Tigr.RGBA(255,255,0,255))
+	end
+	def update(t)
+		self.x=self.x+(self.vx*t)
+		self.y=self.y+(self.vy*t)
+		if (self.y>200-self.rad)
+			self.vy=-self.vy
+		end
+		self.vy+=32*t
+	end
+end
+
+class Hero is Object 
+  def _init(x,y,r)
+    super(x,y,r)
+		self.image = Tigr.LoadImage("examples/squinkle.png")
+  end
+	def update(t)
+		super(t)
+		if (Tigr.KeyHeld(screen,Tigr.TK_LEFT))
+			self.vx-=t*60
+		end
+		if (Tigr.KeyHeld(screen,Tigr.TK_RIGHT))
+			self.vx+=t*60
+		end
+		Tigr.BlitAlpha(screen,self.image,self.x,self.y,0,0,self.image.width,self.image.height,1.0)
+		Tigr.Print(screen,null,self.x,self.y,Tigr.RGBA(255,255,255,255),'${self}')
+	end  
+end
+
+Hero(64,64,4)
+
+for i in 0..10 do 
+##	Object(math.rand()%320,math.rand()%100,2+math.rand()%16)
+end
+
+screen = Tigr.Window(480,270,"Hello",Tigr.TIGR_FIXED)
+mouse = Tigr.TMouse()
+
+while (!Tigr.Closed(screen) and !Tigr.KeyDown(screen,Tigr.TK_ESCAPE))
+
+	lastTime = Tigr.Time()
+	Tigr.Clear(screen,32,32,32)
+	for i in 0..ObjectList.length do
+		o = ObjectList[i]
+		o.update(lastTime)
+		o.draw()
+	end
+	gcbytes = lang.gc()
+	Tigr.Print(screen,null,0,8,Tigr.RGBA(255,0,255,255),'gc ${gcbytes}')
+	Tigr.Print(screen,null,0,16,Tigr.RGBA(255,128,255,255),'time ${lastTime}')
+	Tigr.Update(screen)
+end 
